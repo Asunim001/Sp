@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Surat Pengadaan Barang - Apotek</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap & Select2 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <style>
     body {
@@ -37,7 +38,13 @@
     @media print {
       .no-print { display: none !important; }
       .select2-container { display: none !important; }
-      select.select-obat { display: block !important; }
+      select.select-obat { display: none !important; }
+      span.print-obat-value {
+        display: inline-block !important;
+        font-size: 14px;
+        font-family: inherit;
+        color: #000;
+      }
       @page {
         size: A4 portrait;
         margin: 1cm;
@@ -81,7 +88,7 @@
       <tr>
         <td>
           <select class="form-select select-obat">
-            <option>Paracetamol 500mg</option>
+            <option selected>Paracetamol 500mg</option>
             <option>Amoxicillin 500mg</option>
             <option>Vitamin C</option>
             <option>OBH Combi</option>
@@ -109,7 +116,7 @@
 
   <div class="no-print mb-4">
     <button class="btn btn-sm btn-outline-primary" onclick="addRow()">+ Tambah Baris</button>
-    <button class="btn btn-sm btn-success ms-2" onclick="window.print()">🖨️ Cetak</button>
+    <button class="btn btn-sm btn-success ms-2" onclick="preparePrint()">🖨️ Cetak</button>
   </div>
 
   <div class="signature-area">
@@ -118,7 +125,7 @@
     <p>Pemesan / Apoteker</p>
   </div>
 
-  <!-- JS: jQuery & Select2 -->
+  <!-- JS: jQuery, Select2 -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <script>
@@ -137,7 +144,7 @@
       row.innerHTML = `
         <td>
           <select class="form-select select-obat">
-            <option>Paracetamol 500mg</option>
+            <option selected>Paracetamol 500mg</option>
             <option>Amoxicillin 500mg</option>
             <option>Vitamin C</option>
             <option>OBH Combi</option>
@@ -161,6 +168,29 @@
         <td><input type="text" class="form-control" placeholder="Keterangan..."></td>
       `;
       applySelect2(); // Terapkan select2 ke baris baru
+    }
+
+    function preparePrint() {
+      // Tampilkan isi dropdown "Nama Barang" sebagai teks biasa sebelum cetak
+      document.querySelectorAll('.select-obat').forEach(function(select) {
+        const selectedText = select.options[select.selectedIndex]?.text || '';
+        const span = document.createElement('span');
+        span.className = 'print-obat-value';
+        span.innerText = selectedText;
+        select.parentNode.insertBefore(span, select);
+        select.style.display = 'none';
+      });
+
+      window.print();
+
+      // Kembalikan setelah cetak
+      document.querySelectorAll('.print-obat-value').forEach(function(span) {
+        const select = span.previousElementSibling;
+        if (select && select.classList.contains('select-obat')) {
+          select.style.display = 'block';
+        }
+        span.remove();
+      });
     }
   </script>
 
